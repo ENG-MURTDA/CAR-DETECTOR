@@ -3,6 +3,14 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 
+# حل مشكلة تضارب النسخ (Keras 3 vs Keras 2)
+from tensorflow.keras.layers import InputLayer
+class FixedInputLayer(InputLayer):
+    def __init__(self, *args, **kwargs):
+        kwargs.pop('batch_shape', None)
+        kwargs.pop('optional', None)
+        super().__init__(*args, **kwargs)
+
 st.title("🏎️ كاشف السيارات الذكي")
 st.write("ارفع صورة السيارة وهسة أكلك شنو نوعها")
 
@@ -18,9 +26,13 @@ if file is not None:
     img_array = np.expand_dims(img_array, axis=0)
     
     try:
-        # تحميل الموديل
-        model = tf.keras.models.load_model("car_model.h5", compile=False)
+        # تحميل الموديل مع استبدال الطبقة المسببة للخطأ يدوياً
+        model = tf.keras.models.load_model(
+            "car_model.h5", 
+            custom_objects={'InputLayer': FixedInputLayer},
+            compile=False
+        )
         prediction = model.predict(img_array)
-        st.success("🎉 أخيراً! الموديل اشتغل بنجاح.")
+        st.success("🎉 أخيراً! اشتغل الموديل وتجاوزنا عناد السيرفر.")
     except Exception as e:
         st.error(f"حدث خطأ: {e}")
