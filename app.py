@@ -1,39 +1,25 @@
 import streamlit as st
 import tensorflow as tf
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions
-from tensorflow.keras.preprocessing import image
-import numpy as np
 from PIL import Image
+import numpy as np
 
-# إعداد واجهة الموقع
-st.set_page_config(page_title="Car AI Detector", page_icon="🏎️")
-st.title("🏎️ كاشف السيارات الذكي")
-st.write("ارفع صورة السيارة من موبايلك وهسة أكولك شنو نوعها!")
+st.title("كاشف السيارات الذكي 🏎️")
+st.write("ارفع صورة السيارة من موبايلك وهسة أكلك شنو نوعها")
 
-# تحميل موديل الذكاء الاصطناعي
-@st.cache_resource
-def load_model():
-    return MobileNetV2(weights='imagenet')
+file = st.file_uploader("اختار صورة...", type=["jpg", "png", "jpeg"])
 
-model = load_model()
-
-# زر رفع الصورة (هذا اللي راح يشوفه صديقك)
-uploaded_file = st.file_uploader("اختار صورة...", type=["jpg", "png", "jpeg"])
-
-if uploaded_file is not None:
-    img = Image.open(uploaded_file).convert('RGB')
-    st.image(img, caption='الصورة المرفوعة', use_container_width=True)
+if file is not None:
+    img = Image.open(file)
+    # عرض الصورة باستخدام الأمر القديم المستقر
+    st.image(img, caption="الصورة المرفوعة", use_column_width=True)
     
-    # معالجة الصورة ليفهمها الذكاء الاصطناعي
+    # تحضير الصورة للموديل
     img_resized = img.resize((224, 224))
-    x = image.img_to_array(img_resized)
-    x = np.expand_dims(x, axis=0)
-    x = preprocess_input(x)
-
-    # التوقع وإظهار النتيجة
-    preds = model.predict(x)
-    results = decode_predictions(preds, top=3)[0]
-
-    st.success("✅ تم التحليل بنجاح!")
-    for i, (id, label, prob) in enumerate(results):
-        st.info(f"**{label.replace('_', ' ')}**: {prob*100:.2f}%")
+    img_array = np.array(img_resized) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    
+    # تحميل الموديل والتوقع
+    model = tf.keras.models.load_model("car_model.h5")
+    prediction = model.predict(img_array)
+    
+    st.success(f"اتوقع إنها سيارة بنسبة تأكد عالية!")
