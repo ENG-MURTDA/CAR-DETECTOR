@@ -17,14 +17,12 @@ if file is not None:
     img_resized = img.resize((224, 224))
     img_array = np.array(img_resized) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
-    # تحميل الموديل والتوقع
-    model = tf.keras.models.load_model("car_model.h5", compile=False)
+   # تحميل الموديل والتوقع بطريقة التوافق
+    from tensorflow.keras.models import load_model
+    model = load_model("car_model.h5", compile=False)
     prediction = model.predict(img_array)
     
     st.success("اتوقع إنها سيارة بنسبة تأكد عالية!")
     
-    # تحميل الموديل والتوقع
-    model = tf.keras.models.load_model("car_model.h5")
-    prediction = model.predict(img_array)
     
     st.success(f"اتوقع إنها سيارة بنسبة تأكد عالية!")
