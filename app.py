@@ -10,7 +10,7 @@ file = st.file_uploader("...اختار صورة", type=["jpg", "png", "jpeg"])
 
 if file is not None:
     img = Image.open(file)
-    st.image(img, caption="الصورة المرفوعة", use_container_width=True)
+    st.image(img, caption="الصورة المرفوعة", use_column_width=True)
     
     # تحضير الصورة للموديل
     img_resized = img.resize((224, 224))
